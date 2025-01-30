@@ -3,11 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import joblib
 
 file_path = 'telco_customer_churn.csv'  
 data = pd.read_csv(file_path)
@@ -26,7 +25,14 @@ sns.boxplot(data=data, x='Churn', y='Total Usage Hours')
 plt.title('Total Usage Hours by Churn Status')
 plt.show()
 
-data.dropna(inplace=True)
+plt.figure(figsize=(10, 6))
+sns.histplot(data=data, x='Age', hue='Churn', multiple='stack', bins=30)
+plt.title('Age Distribution by Churn Status')
+plt.show()
+
+if data.isnull().sum().any():
+    print("Missing values found. Dropping rows with missing values.")
+    data.dropna(inplace=True)
 
 scaler = StandardScaler()
 data[['Monthly Charges', 'Total Usage Hours']] = scaler.fit_transform(data[['Monthly Charges', 'Total Usage Hours']])
@@ -57,6 +63,6 @@ importance_df = importance_df.sort_values(by='Importance', ascending=False)
 plt.figure(figsize=(10, 6))
 sns.barplot(data=importance_df, x='Importance', y='Feature')
 plt.title('Feature Importance')
-plt.show
-import joblib
+plt.show()
+
 joblib.dump(model, 'customer_churn_model.pkl')
